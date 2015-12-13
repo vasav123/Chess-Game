@@ -8,9 +8,9 @@ def checkIfUserWantsToMovePiece(win,h,mx,my,mb):
     
     if (board[y][x].getValue()!="blank" and mb[0]==1) :
         board[y][x].drawMovesPossible(board,win,h)
-        draw.rect(win,(0,200,50),Rect(board[y][x].getX()*(h/8),board[y][x].getY()*(h/8),h/8,h/8),10)
-       
+        draw.rect(win,(0,200,50),Rect(board[y][x].getX()*(h/8),board[y][x].getY()*(h/8),h/8,h/8),10)       
     return (x,y)
+
 def clickedAtSamePos(Px,Py,Cx,Cy,h):
     return (Px,Py)==(Cx/(h/8),Cy/(h/8))
 
@@ -25,6 +25,7 @@ def drawBoard(win,h):
                 draw.rect(win,(240,240,240),Rect(i*(h/8),j*(h/8),h/8,h/8),0)
             elif (j%2==1 and i%2==0) or(j%2==0 and i%2==1):
                 draw.rect(win,(0,200,50),Rect(i*(h/8),j*(h/8),h/8,h/8),0)
+
 def putPieces(win,lst,h):
     ''' Temporary draws the pieces according to the board
     '''
@@ -53,7 +54,7 @@ def readFile(name):
     return values
 def writeFile(board,name):
     f=open(name)
-            
+
 running=True
 screen= display.set_mode((600,600))
 board= readFile("arrangement.txt")
@@ -76,9 +77,11 @@ while running:
                     state="thinking"
                 elif(mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
                     board[y1][x1].setMoved(True)
+                    
                     for y in range(8):
                         for x in range(8):
                             board[y][x].setDangered(board,False)
+                            
                     if board[y1][x1].getType()=="king" and mx/(h/8)-x1==2 and board[y1][x1].getColour()=="white":
                            board[y1][x1].setCord(mx/(h/8),my/(h/8))
                            board[my/(h/8)][mx/(h/8)]=board[y1][x1]
@@ -104,7 +107,6 @@ while running:
                            board[y1][x1].setCord(mx/(h/8),my/(h/8))
                            board[my/(h/8)][mx/(h/8)]=board[y1][x1]
                            board[y1][x1]=Piece("0",x1,y1,False,False,False)
-                           print"yo"
                            board[0][7].setCord(5,0)
                            board[0][5]=board[0][7]
                            board[0][7]=Piece("0",0,7,False,False,False)
@@ -112,9 +114,11 @@ while running:
                         board[y1][x1].setCord(mx/(h/8),my/(h/8))
                         board[my/(h/8)][mx/(h/8)]=board[y1][x1]
                         board[y1][x1]=Piece("0",x1,y1,False,False,False)
+                    
                     for y in range(8):
                         for x in range(8):
                             board[y][x].setDangered(board,True)
+                    board[my/(h/8)][mx/(h/8)].promote(screen)
                     state="thinking"
                 else:
                     state="picking"

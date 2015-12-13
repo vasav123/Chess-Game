@@ -142,7 +142,33 @@ class Piece:
                     moves.append((self.x-1,self.y-1))
         for (x,y) in moves:
             board[y][x].setDanger(tf,self.x,self.y,board)
-
+    def promote(self,win):
+        print self.value,self.colour,self.y
+        if self.value=="pawn" and self.colour=="black" and self.y==7:
+            self.value=self.getNewValue(win)
+        elif self.value=="pawn" and self.colour=="white" and self.y==0:
+            print"niggs"
+            self.value= self.getNewValue(win)
+    def getNewValue(self,win):
+        choices=[(0,300,100,100),(110,300,100,100),(220,300,100,100),(330,300,100,100)]
+        values=["queen","horse","bishop","rook"]
+        running=True
+        while running:
+            print"yo"
+            for e in event.get():
+                if e.type==QUIT:
+                    running=False
+            mx,my=mouse.get_pos()
+            mb=mouse.get_pressed()
+            win.fill((255,255,255))
+            for i in choices:
+                draw.rect(win,(200,0,0),Rect(i),0)
+            for i in range(4):
+                if Rect(choices[i]).collidepoint(mx,my) and mb[0]==1:
+                    running=False
+                    return values[i]
+            display.update()
+                
     def drawMovesPossible(self,board,win,h):
         '''
         This just draws the moves possible
