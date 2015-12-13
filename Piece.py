@@ -98,7 +98,7 @@ class Piece:
                 moves[3].append((-2,0))
             if self.colour=="black" and self.getMoved()==False and board[0][4].getDanger()[1]==False and board[0][3].getDanger()[1]==False and board[0][2].getDanger()[1]==False and board[0][7].getMoved()==False:
                 moves[2].append((2,0))
-##        print moves[-1]
+
             
         for row in moves:
             for i in row:
@@ -143,18 +143,15 @@ class Piece:
         for (x,y) in moves:
             board[y][x].setDanger(tf,self.x,self.y,board)
     def promote(self,win):
-        print self.value,self.colour,self.y
         if self.value=="pawn" and self.colour=="black" and self.y==7:
             self.value=self.getNewValue(win)
-        elif self.value=="pawn" and self.colour=="white" and self.y==0:
-            print"niggs"
+        elif self.value=="pawn" and self.colour=="white" and self.y==0:            
             self.value= self.getNewValue(win)
     def getNewValue(self,win):
         choices=[(0,300,100,100),(110,300,100,100),(220,300,100,100),(330,300,100,100)]
         values=["queen","horse","bishop","rook"]
         running=True
         while running:
-            print"yo"
             for e in event.get():
                 if e.type==QUIT:
                     running=False
