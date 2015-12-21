@@ -52,6 +52,52 @@ def readFile(name):
         y+=1
     f.close()
     return values
+def movePiece(board,state,mx,my,h):
+    board[y1][x1].setMoved(True)
+    
+    for y in range(8):
+        for x in range(8):
+            board[y][x].setDangered(board,False)
+            
+    if board[y1][x1].getType()=="king" and mx/(h/8)-x1==2 and board[y1][x1].getColour()=="white":
+           board[y1][x1].setCord(mx/(h/8),my/(h/8))
+           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
+           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
+           board[7][7].setCord(5,7)
+           board[7][5]=board[7][7]
+           board[7][7]=Piece("0",7,7,False,False,False)
+    elif board[y1][x1].getType()=="king" and x1-mx/(h/8)==2 and board[y1][x1].getColour()=="white":
+           board[y1][x1].setCord(mx/(h/8),my/(h/8))
+           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
+           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
+           board[7][0].setCord(3,7)
+           board[7][3]=board[7][0]
+           board[7][0]=Piece("0",0,7,False,False,False)
+    elif board[y1][x1].getType()=="king" and x1-mx/(h/8)==2 and board[y1][x1].getColour()=="black":
+           board[y1][x1].setCord(mx/(h/8),my/(h/8))
+           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
+           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
+           board[0][0].setCord(3,0)
+           board[0][3]=board[0][0]
+           board[0][0]=Piece("0",0,0,False,False,False)
+    elif board[y1][x1].getType()=="king" and mx/(h/8)-x1==2 and board[y1][x1].getColour()=="black":
+           board[y1][x1].setCord(mx/(h/8),my/(h/8))
+           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
+           board[y1][x1]=Piece("0",x1,y1,False,False,False)
+           board[0][7].setCord(5,0)
+           board[0][5]=board[0][7]
+           board[0][7]=Piece("0",0,7,False,False,False)
+    else:
+        board[y1][x1].setCord(mx/(h/8),my/(h/8))
+        board[my/(h/8)][mx/(h/8)]=board[y1][x1]
+        board[y1][x1]=Piece("0",x1,y1,False,False,False)
+    
+    for y in range(8):
+        for x in range(8):
+            board[y][x].setDangered(board,True)
+    board[my/(h/8)][mx/(h/8)].promote(screen)
+##    state="thinking"
+
 def writeFile(board,name):
     f=open(name)
 
@@ -59,7 +105,7 @@ running=True
 screen= display.set_mode((600,600))
 board= readFile("arrangement.txt")
 h=600
-
+move_count=0
 state="thinking"
 for y in range(8):
     for x in range(8):
@@ -75,54 +121,16 @@ while running:
             elif state=="picking":
                 if clickedAtSamePos(x1,y1,mx,my,h):
                     state="thinking"
-                elif(mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
-                    board[y1][x1].setMoved(True)
-                    
-                    for y in range(8):
-                        for x in range(8):
-                            board[y][x].setDangered(board,False)
-                            
-                    if board[y1][x1].getType()=="king" and mx/(h/8)-x1==2 and board[y1][x1].getColour()=="white":
-                           board[y1][x1].setCord(mx/(h/8),my/(h/8))
-                           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
-                           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
-                           board[7][7].setCord(5,7)
-                           board[7][5]=board[7][7]
-                           board[7][7]=Piece("0",7,7,False,False,False)
-                    elif board[y1][x1].getType()=="king" and x1-mx/(h/8)==2 and board[y1][x1].getColour()=="white":
-                           board[y1][x1].setCord(mx/(h/8),my/(h/8))
-                           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
-                           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
-                           board[7][0].setCord(3,7)
-                           board[7][3]=board[7][0]
-                           board[7][0]=Piece("0",0,7,False,False,False)
-                    elif board[y1][x1].getType()=="king" and x1-mx/(h/8)==2 and board[y1][x1].getColour()=="black":
-                           board[y1][x1].setCord(mx/(h/8),my/(h/8))
-                           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
-                           board[y1][x1]=Piece("0",x1,y1,False,False,False)                       
-                           board[0][0].setCord(3,0)
-                           board[0][3]=board[0][0]
-                           board[0][0]=Piece("0",0,0,False,False,False)
-                    elif board[y1][x1].getType()=="king" and mx/(h/8)-x1==2 and board[y1][x1].getColour()=="black":
-                           board[y1][x1].setCord(mx/(h/8),my/(h/8))
-                           board[my/(h/8)][mx/(h/8)]=board[y1][x1]
-                           board[y1][x1]=Piece("0",x1,y1,False,False,False)
-                           board[0][7].setCord(5,0)
-                           board[0][5]=board[0][7]
-                           board[0][7]=Piece("0",0,7,False,False,False)
-                    else:
-                        board[y1][x1].setCord(mx/(h/8),my/(h/8))
-                        board[my/(h/8)][mx/(h/8)]=board[y1][x1]
-                        board[y1][x1]=Piece("0",x1,y1,False,False,False)
-                    
-                    for y in range(8):
-                        for x in range(8):
-                            board[y][x].setDangered(board,True)
-                    board[my/(h/8)][mx/(h/8)].promote(screen)
+                elif move_count%2==0 and  board[y1][x1].getColour()=="white" and (mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
+                    movePiece(board,state,mx,my,h)
+                    move_count+=1
+                    state="thinking"
+                elif move_count%2==1 and  board[y1][x1].getColour()=="black" and (mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
+                    movePiece(board,state,mx,my,h)
+                    move_count+=1
                     state="thinking"
                 else:
                     state="picking"
-        
     drawBoard (screen,600)
     putPieces(screen,board,600)
     mx,my=mouse.get_pos()
