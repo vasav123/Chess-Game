@@ -70,6 +70,8 @@ class Piece:
         '''
         moves=self.getMovesPossible()
         actualpossiblemoves=[]
+        if self.value=="":
+            return []
         if self.value=="pawn":
             if self.colour=="black":
                 nx=self.x+1
