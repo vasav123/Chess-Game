@@ -1,6 +1,9 @@
 #Chess Game
 from pygame import *
 from Piece import *
+import server
+import client
+from socket import *
 def checkIfUserWantsToMovePiece(win,h,mx,my,mb):
    
     x=mx/(h/8)
@@ -29,10 +32,11 @@ def drawBoard(win,h):
 def putPieces(win,lst,h):
     ''' Temporary draws the pieces according to the board
     '''
+    colours= {"w1":(0,0,155),"w2":(137,123,175),"w3":(99,81,146),"w4":(67,47,117),"w5":(40,22,87),"w6":(21,6,58),"b1":(155,0,0),"b2":(212,106,106),"b3":(170,57,57),"b4":(128,21,21),"b5":(85,0,0),"b6":(117,6,58)}
     for y in range(8):
         for x in range(8):
             if lst[y][x].getOValue()!="0":
-                win.blit(lst[y][x].getImage(),(lst[y][x].getX()*(h/8),lst[y][x].getY()*(h/8)))
+                draw.circle(win,colours[lst[y][x].getOValue()],(lst[y][x].getX()*(h/8)+h/16,lst[y][x].getY()*(h/8)+h/16),h/16)
     
 def readFile(name):
     f= open(name,"r")
@@ -50,6 +54,21 @@ def readFile(name):
         values.append(v)
         y+=1
     f.close()
+    return values
+def makeBoard(board):
+    values=[]
+    x=0
+    y=0
+    for l in board:
+        v=[]
+        x=0
+        for p in l:
+            v.append(Piece(p,x,y,False,False,False))
+            x+=1
+        values.append(v)
+        y+=1
+    print(values[0],len(values))
+##    f.close()
     return values
 def movePiece(board,state,mx,my,h):
     board[y1][x1].setMoved(True)
@@ -96,40 +115,54 @@ def movePiece(board,state,mx,my,h):
             board[y][x].setDangered(board,True)
     board[my/(h/8)][mx/(h/8)].promote(screen)
 ##    state="thinking"
-def checkIfCheckMate(board):
-    whiteIsStillPlaying=False
-    blackIsStillPlaying=False
-    for y in range (8):
-        for x in range(8):
-            if board[y][x].getValue()=="white king":
-                whiteIsStillPlaying=True
-            if board[y][x].getValue()=="black king":
-                blackIsStillPlaying=True
-    if blackIsStillPlaying==False:
-        return [True,"white"]
-    if whiteIsStillPlaying==False:
-        return [True,"black"]
-    return [False,"no winner"]
+
 def writeFile(board,name):
-    f=open(name)
-def restart():
-    global board,move_count,state
-    board= readFile("arrangement.txt")
-    move_count=0
-    state="thinking"
-    for y in range(8):
-        for x in range(8):
-            board[y][x].setDangered(board,True) 
+    f=open(name,"w")
+    for row in board:
+        message=""
+        for p in row:
+            message+=p.getOValue()+" "
+##        message=message[0::16]
+        message+="\n"
+        f.write(message)
+    f.close()
+    
+def sendData(board,user,c):
+    writeFile(board,"arrangement2.txt")
+    if user=="s":
+        newBoard=makeBoard(server.Main(c))
+    if user=="c":
+        newBoard=makeBoard(client.sendMessage(c))
+    print "data inteperated"
+    return newBoard
+
 running=True
 screen= display.set_mode((600,600))
 board= readFile("arrangement.txt")
 h=600
 move_count=0
 state="thinking"
+user="c"
 for y in range(8):
     for x in range(8):
         board[y][x].setDangered(board,True)
+if user=="s":
+    host = '127.0.0.1'
+    port = 5000
 
+    s = socket()
+    s.bind((host,port))
+
+    s.listen(1)
+    c, addr = s.accept()
+    print "Connection from: " + str(addr)
+elif user=="c":
+    host = '127.0.0.1'
+    port = 5000
+
+    s = socket()
+    s.connect((host, port))
+    
 while running:
     for e in event.get():
         if e.type==QUIT:
@@ -143,14 +176,16 @@ while running:
                     state="thinking"
                 elif move_count%2==0 and  board[y1][x1].getColour()=="white" and (mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
                     movePiece(board,state,mx,my,h)
-                    move_count+=1
-                    state="thinking"
-                elif move_count%2==1 and  board[y1][x1].getColour()=="black" and (mx/(h/8),my/(h/8)) in board[y1][x1].showPossibleMoves(board):
-                    movePiece(board,state,mx,my,h)
-                    move_count+=1
+                    move_count+=2
+                    drawBoard (screen,600)
+                    putPieces(screen,board,600)
+                    display.update()
+                    print"done2"
+                    board=sendData(board,"c",s)
                     state="thinking"
                 else:
                     state="picking"
+    
     drawBoard (screen,600)
     putPieces(screen,board,600)
     mx,my=mouse.get_pos()
@@ -160,10 +195,14 @@ while running:
     elif state=="picking":
         board[y1][x1].drawMovesPossible(board,screen,h)
         draw.rect(screen,(0,200,50),Rect(board[y1][x1].getX()*(h/8),board[y1][x1].getY()*(h/8),h/8,h/8),10)
-    if checkIfCheckMate(board)[0]:
-        screen.blit(image.load(checkIfCheckMate(board)[1]+".png"),(0,0))
-        draw.rect(screen,(0,0,0),Rect(170,460,240,70),1)
-        if Rect(170,460,240,70).collidepoint(mx,my) and mb[0]:
-            restart()
     display.flip()
+    if move_count==0:
+        newBoard=client.Main(s)
+        board=makeBoard(newBoard)
+        move_count+=2
+        print"done"
+if user=="s":
+    c.close()
+elif user=="c":
+    s.close()
 quit()

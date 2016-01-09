@@ -4,6 +4,9 @@ class Piece:
         This is used to keep track of each pieces values and moves it can do
     '''
     def __init__(self,number,x,y,d1,d2,moved):
+        if number!="0":
+            self.img= image.load(number+".png")
+            self.img=transform.scale(self.img,(75,75))
         self.originalvalue=number
         if number[0]=="w":
             self.colour ="white"
@@ -63,15 +66,14 @@ class Piece:
                 else:
                     return [[(0,-1)]]        
 
-        
+    def getImage(self):
+        return self.img
     def showPossibleMoves(self,board):
         '''
         This checks if the move available are actual possible moves and ensures there is nothing in the way and stuff
         '''
         moves=self.getMovesPossible()
         actualpossiblemoves=[]
-        if self.value=="":
-            return []
         if self.value=="pawn":
             if self.colour=="black":
                 nx=self.x+1
@@ -175,41 +177,6 @@ class Piece:
         possiblemoves=self.showPossibleMoves(board)
         for i in possiblemoves:
             draw.rect(win,(255,0,0),Rect((i[0])*h/8,(i[1])*(h/8),h/8,h/8),4)
-##    def movePiece(self,board,x2,y2):
-##        self.kingCastle(board,x2,y2)
-##        self.setCord(x2,y2)
-##        board[y2][x2]=self
-##        return Piece("0",self.x,self.y,False,False,False)
-##    def kingCastle(self,board,x2,y2):
-##        if board[self.y][self.x].getType()=="king" and x2-self.x==2 and self.getColour()=="white":
-##               board[self.y][self.x].setCord(x2,y2)
-##               board[y2][x2]=board[self.y][self.x]
-##               board[self.y][self.x]=Piece("0",self.x,self.y,False,False,False)                       
-##               board[7][7].setCord(5,7)
-##               board[7][5]=board[7][7]
-##               board[7][7]=Piece("0",7,7,False,False,False)
-##        elif board[self.y][self.x].getType()=="king" and self.x-x2==2 and self.getColour()=="white":
-##               board[self.y][self.x].setCord(x2,y2)
-##               board[y2][x2]=board[self.y][self.x]
-##               board[self.y][self.x]=Piece("0",self.x,self.y,False,False,False)                       
-##               board[7][0].setCord(3,7)
-##               board[7][3]=board[7][0]
-##               board[7][0]=Piece("0",0,7,False,False,False)
-##        elif board[self.y][self.x].getType()=="king" and self.x-x2==2 and self.getColour()=="black":
-##               board[self.y][self.x].setCord(x2,y2)
-##               board[y2][x2]=board[self.y][self.x]
-##               board[self.y][self.x]=Piece("0",self.x,self.y,False,False,False)                       
-##               board[0][0].setCord(3,0)
-##               board[0][3]=board[0][0]
-##               board[0][0]=Piece("0",0,0,False,False,False)
-##        elif board[self.y][self.x].getType()=="king" and x2-self.x==2 and self.getColour()=="black":
-##               board[self.y][self.x].setCord(x2,y22)
-##               board[y2][x2]=board[self.y][self.x]
-##               board[self.y][self.x]=Piece("0",self.x,self.y,False,False,False)
-##               board[0][7].setCord(5,0)
-##               board[0][5]=board[0][7]
-##               board[0][7]=Piece("0",0,7,False,False,False)
-##        
 #########################################################################################
 
     def getX(self):
@@ -218,9 +185,6 @@ class Piece:
         return self.y
     def getValue(self):
         return self.colour+" "+self.value
-    def getPValue(self):
-        valuesofpieces={"pawn":1,"rook":5,"horse":3,"bishop":3,"queen":9,"king":20}
-        return valuesofpieces[self.value]
     def getColour(self):
         return self.colour
     def getOValue(self):
